@@ -1,5 +1,7 @@
+// src/App.jsx
 import React, { useEffect, useState } from 'react'
-import { api } from './lib/api'
+import { api } from './lib/api.js'   // <-- обратите внимание на .js
+
 
 export default function App() {
   const [ping, setPing] = useState('')
