@@ -1,26 +1,21 @@
 // src/lib/api.js
+export const API = import.meta.env.VITE_API_URL; // у тебя это https://backend-r6yb.onrender.com
 
-const BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/+$/, '') || ''
+export async function ping() {
+  const res = await fetch(`${API}/ping`);
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
 
-export const api = {
-  async get(path) {
-    const res = await fetch(`${BASE_URL}${path}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-    })
-    if (!res.ok) throw new Error(`GET ${path} -> ${res.status}`)
-    return res.json()
-  },
-
-  async post(path, body) {
-    const res = await fetch(`${BASE_URL}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(body),
-    })
-    if (!res.ok) throw new Error(`POST ${path} -> ${res.status}`)
-    return res.json()
-  },
+// Если на бэкенде у /ai/chat поле в body называется НЕ prompt,
+// поменяй ниже { prompt } на нужное имя (например, { text }).
+export async function aiChat(prompt) {
+  const body = { prompt };
+  const res = await fetch(`${API}/ai/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
 }
