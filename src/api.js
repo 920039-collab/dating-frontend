@@ -1,24 +1,25 @@
-import axios from "axios";
-import { API_URL } from "./config";
+// Мини-клиент для работы с API.
+// Базовый URL читается из переменной окружения Vite.
+const BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/+$/, '') || ''
 
-const api = axios.create({
-  baseURL: API_URL,
-  headers: { "Content-Type": "application/json" }
-});
-
-api.interceptors.request.use(cfg => {
-  const t = localStorage.getItem("token");
-  if (t) cfg.headers.Authorization = `Bearer ${t}`;
-  return cfg;
-});
-
-export const authApi = {
-  signup: (data) => api.post("/auth/signup", data),
-  signin: (data) => api.post("/auth/signin", data),
-};
-
-export const aiApi = {
-  starter: () => api.get("/ai/starter"),
-};
-
-export default api;
+export const api = {
+  async get(path) {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include'
+    })
+    if (!res.ok) throw new Error(`GET ${path} -> ${res.status}`)
+    return res.json()
+  },
+  async post(path, body) {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(body)
+    })
+    if (!res.ok) throw new Error(`POST ${path} -> ${res.status}`)
+    return res.json()
+  }
+}
