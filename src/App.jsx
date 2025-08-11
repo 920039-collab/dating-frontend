@@ -1,42 +1,42 @@
-import { Routes, Route, Link } from "react-router-dom";
-import Home from "./pages/Home.jsx";
-import Login from "./pages/Login.jsx";
-import Signup from "./pages/Signup.jsx";
-import Chat from "./pages/Chat.jsx";
-
-const navStyle = { padding: "12px 16px", display:"flex", justifyContent:"space-between", alignItems:"center", background:"#181818" };
-const linkStyle = { color:"#fff", textDecoration:"none", marginLeft:12 };
+import React, { useEffect, useState } from 'react'
+import { api } from './lib/api'
 
 export default function App() {
-  const token = localStorage.getItem("token");
+  const [ping, setPing] = useState('')
+  const [starter, setStarter] = useState('')
+
+  useEffect(() => {
+    // Простой пинг API (если есть GET /ping)
+    api.get('/ping')
+      .then(res => setPing(JSON.stringify(res.data)))
+      .catch(() => setPing('API ping: ошибка или эндпоинт отсутствует'))
+
+    // Пример AI-стартера (если есть GET /ai/starter)
+    api.get('/ai/starter')
+      .then(res => setStarter(res.data?.text || JSON.stringify(res.data)))
+      .catch(() => setStarter('AI starter: ошибка или эндпоинт отсутствует'))
+  }, [])
 
   return (
-    <div>
-      <nav style={navStyle}>
-        <Link to="/" style={{...linkStyle, fontWeight:"700"}}>SoulMatch+</Link>
-        <div>
-          <Link to="/" style={linkStyle}>Домой</Link>
-          {token ? (
-            <button style={linkStyle} onClick={() => { localStorage.removeItem("token"); location.href="/"; }}>Выйти</button>
-          ) : (
-            <>
-              <Link to="/login" style={linkStyle}>Войти</Link>
-              <Link to="/signup" style={linkStyle}>Регистрация</Link>
-            </>
-          )}
-          <Link to="/chat" style={{...linkStyle, background:"#e91e63", padding:"6px 12px", borderRadius:8}}>Чат</Link>
-        </div>
-      </nav>
+    <div style={{display: 'grid', placeItems: 'center', minHeight: '100dvh', background:'#0b0b0f', color:'#fff', fontFamily:'system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell'}}>
+      <div style={{maxWidth: 720, width:'100%', padding: 24}}>
+        <h1 style={{margin:0, fontSize: 32, lineHeight: 1.2}}>Dating — MVP</h1>
+        <p style={{opacity:.8}}>Бэкенд: <code>{import.meta.env.VITE_API_URL}</code></p>
 
-      <div style={{padding:16, maxWidth:800, margin:"0 auto"}}>
-        <Routes>
-          <Route path="/" element={<Home/>} />
-          <Route path="/login" element={<Login/>} />
-          <Route path="/signup" element={<Signup/>} />
-          <Route path="/chat" element={<Chat/>} />
-          <Route path="*" element={<div>Страница не найдена</div>} />
-        </Routes>
+        <div style={{marginTop: 24, padding:16, background:'#13131a', borderRadius:12}}>
+          <h3>Пинг API</h3>
+          <pre style={{whiteSpace:'pre-wrap'}}>{ping}</pre>
+        </div>
+
+        <div style={{marginTop: 16, padding:16, background:'#13131a', borderRadius:12}}>
+          <h3>AI-старт диалога</h3>
+          <pre style={{whiteSpace:'pre-wrap'}}>{starter}</pre>
+        </div>
+
+        <p style={{opacity:.7, marginTop: 24}}>
+          Если видишь пусто/ошибки — проверь переменную <code>VITE_API_URL</code> на Vercel и доступность эндпоинтов на бэкенде.
+        </p>
       </div>
     </div>
-  );
+  )
 }
